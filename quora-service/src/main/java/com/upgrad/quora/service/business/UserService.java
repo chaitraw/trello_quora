@@ -66,20 +66,20 @@ public class UserService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public String signOut(final String username, final String password, final String accessToken) throws SignOutRestrictedException, AuthenticationFailedException {
+    public UserAuthEntity signOut(final String accessToken) throws SignOutRestrictedException, AuthenticationFailedException {
         UserAuthEntity userAuthEntity = userDao.getUserAuthToken(accessToken);
         if (userAuthEntity == null) {
             throw new AuthenticationFailedException("SGR-001", "User is not Signed in");
         }
 
         final LocalDateTime now = LocalDateTime.now();
-        UserEntity userEntity = userDao.getUserByUserName(username);
+        UserEntity userEntity = userDao.getUserByUserName(userAuthEntity.getUser().getUserName());
         if (userEntity == null) {
             throw new AuthenticationFailedException("ATH-001", "User with email not found");
         }
 
         userAuthEntity.setLogoutAt(now);
         userDao.updateAuthToken(userAuthEntity);
-        return userEntity.getUuid();
+        return userAuthEntity;
     }
 }

@@ -59,15 +59,15 @@ public class UserController {
         String decodedText = new String(decode);
         String[] decodedArray = decodedText.split(":");
 
-        UserAuthTokenEntity userAuthToken = userService.signIn(decodedArray[0], decodedArray[1]);
-        UserEntity user = userAuthToken.getUser();
+        UserAuthEntity userAuthEntity = userService.signIn(decodedArray[0], decodedArray[1]);
+        UserEntity user = userAuthEntity.getUser();
 
         SigninResponse signinResponse = new SigninResponse();
         signinResponse.setId(user.getUuid());
         signinResponse.setMessage("SIGNED IN SUCCESSFULLY");
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("access-token", userAuthToken.getAccessToken());
+        headers.add("access-token", userAuthEntity.getAccessToken());
         return new ResponseEntity<SigninResponse>(signinResponse, headers, HttpStatus.OK);
     }
 
@@ -75,8 +75,8 @@ public class UserController {
     public ResponseEntity<SignoutResponse> signout(@RequestHeader("authorization") final String authorization) throws AuthenticationFailedException {
         String accessToken = authorization.split("Bearer ")[1];
 
-        UserAuthTokenEntity userAuthToken = userService.signOut(accessToken);
-        UserEntity user = userAuthToken.getUser();
+        UserAuthEntity userAuthEntity = userService.signOut(accessToken);
+        UserEntity user = userAuthEntity.getUser();
 
         SignoutResponse signoutResponse = new SignoutResponse();
         signoutResponse.setId(user.getUuid());

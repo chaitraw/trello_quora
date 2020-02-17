@@ -4,7 +4,9 @@ import com.upgrad.quora.service.dao.UserDao;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
+import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.SignOutRestrictedException;
+import com.upgrad.quora.service.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,20 +68,33 @@ public class UserService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public UserAuthEntity signOut(final String accessToken) throws SignOutRestrictedException, AuthenticationFailedException {
+    public UserAuthEntity signOut(final String accessToken) throws SignOutRestrictedException {
         UserAuthEntity userAuthEntity = userDao.getUserAuthToken(accessToken);
         if (userAuthEntity == null) {
-            throw new AuthenticationFailedException("SGR-001", "User is not Signed in");
+            throw new SignOutRestrictedException("SGR-001", "User is not Signed in");
         }
-
         final LocalDateTime now = LocalDateTime.now();
-        UserEntity userEntity = userDao.getUserByUserName(userAuthEntity.getUser().getUserName());
-        if (userEntity == null) {
-            throw new AuthenticationFailedException("ATH-001", "User with email not found");
-        }
-
         userAuthEntity.setLogoutAt(now);
         userDao.updateAuthToken(userAuthEntity);
         return userAuthEntity;
+    }
+
+    public UserEntity deleteUser(String userUuid, String accessToken) throws AuthorizationFailedException, UserNotFoundException {
+        UserEntity userEntity = userDao.getUser(userUuid);
+        if(userEntity == null) {
+            throw new UserNotFoundException("USR-001", "User with entered uuid to be deleted does not exist");
+        }
+        UserAuthEntity userAuthEntity = userDao.getUserAuthToken(accessToken);
+        if (userAuthEntity == null) {
+            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
+        }
+        if(userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
+            throw new AuthorizationFailedException("ATHR-002", "User is signed out");
+        }
+        if(!(userEntity.getRole().equals("ADMIN"))) {
+            throw new AuthorizationFailedException("ATHR-003", "Unauthorized Access, Entered user is not an admin");
+        }
+        userEntity = userDao.deleteUser(userEntity);
+        return userEntity;
     }
 }

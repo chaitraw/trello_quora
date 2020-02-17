@@ -41,7 +41,7 @@ public class AnswerService {
             throw new InvalidQuestionException("QUES-001", "The question entered is invalid");
         }
 
-        if(userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
+        if(userAuthEntity.getLogoutAt() != null && userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
             throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to post an answer");
         }
 
@@ -63,11 +63,11 @@ public class AnswerService {
             throw new AnswerNotFoundException("ANS-001", "Entered answer uuid does not exist");
         }
 
-        if(userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
+        if(userAuthEntity.getLogoutAt() != null && userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
             throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to edit an answer");
         }
 
-        if (!answerEntity.getUuid().equals(userAuthEntity.getUuid())) {
+        if (!answerEntityById.getUuid().equals(userAuthEntity.getUuid())) {
             throw new AuthorizationFailedException("ATHR-003", "Only the answer owner can edit the answer");
         }
 
@@ -84,7 +84,7 @@ public class AnswerService {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
 
-        if(userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
+        if(userAuthEntity.getLogoutAt() != null && userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
             throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to delete an answer");
         }
 
@@ -93,7 +93,7 @@ public class AnswerService {
             throw new AnswerNotFoundException("ANS-001", "Entered answer uuid does not exist");
         }
 
-        if(!(answerEntity.getUser().getUuid().equals(userAuthEntity.getUuid())) && !(answerEntity.getUser().getRole().equals("ADMIN"))) {
+        if(!(answerEntity.getUser().getUuid().equals(userAuthEntity.getUuid())) && !(answerEntity.getUser().getRole().equalsIgnoreCase("ADMIN"))) {
             throw new AuthorizationFailedException("ATHR-003", "Only the answer owner or admin can delete the answer");
         }
         return answerDao.deleteAnswer(answerEntity);
@@ -105,7 +105,7 @@ public class AnswerService {
         if(userAuthEntity == null) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
-        if(userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
+        if(userAuthEntity.getLogoutAt() != null && userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
             throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get the answers");
         }
         QuestionEntity questionEntity = questionDao.getQuestionById(questionId);

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  * @author chandan
  */
 @Entity
-@Table(name = "answer", schema = "quora")
+@Table(name = "answer")
 @NamedQueries(
     {
         @NamedQuery(name = "answerByUuid", query = "select answer from AnswerEntity answer where answer.uuid = :uuid"),
@@ -37,7 +37,7 @@ public class AnswerEntity implements Serializable {
     @Size(max = 255)
     private String ans;
 
-    @Temporal(TemporalType.TIMESTAMP)
+    // @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date", length = 6)
     private LocalDateTime date;
 

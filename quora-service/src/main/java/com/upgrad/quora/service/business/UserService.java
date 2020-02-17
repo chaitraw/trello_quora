@@ -3,10 +3,7 @@ package com.upgrad.quora.service.business;
 import com.upgrad.quora.service.dao.UserDao;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UserEntity;
-import com.upgrad.quora.service.exception.AuthenticationFailedException;
-import com.upgrad.quora.service.exception.AuthorizationFailedException;
-import com.upgrad.quora.service.exception.SignOutRestrictedException;
-import com.upgrad.quora.service.exception.UserNotFoundException;
+import com.upgrad.quora.service.exception.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -30,7 +27,15 @@ public class UserService {
     private PasswordCryptographyProvider cryptographyProvider;
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public UserEntity createUser(UserEntity userEntity) {
+    public UserEntity createUser(UserEntity userEntity) throws SignUpRestrictedException {
+        UserEntity userByUserName = userDao.getUserByUserName(userEntity.getUserName());
+        if(userByUserName != null) {
+            throw new SignUpRestrictedException("SGR-001", "Try any other Username, this Username has already been taken");
+        }
+        UserEntity userByEmail = userDao.getUserByEmail(userEntity.getEmail());
+        if(userByEmail != null && userByEmail.getEmail().equals(userEntity.getEmail())) {
+            throw new SignUpRestrictedException("SGR-002", "This user has already been registered, try with any other emailId");
+        }
         String password = userEntity.getPassword();
         if (password == null) {
             userEntity.setPassword("quora@123");
@@ -85,18 +90,18 @@ public class UserService {
     }
 
     public UserEntity deleteUser(String userUuid, String accessToken) throws AuthorizationFailedException, UserNotFoundException {
-        UserEntity userEntity = userDao.getUser(userUuid);
-        if(userEntity == null) {
-            throw new UserNotFoundException("USR-001", "User with entered uuid to be deleted does not exist");
-        }
         UserAuthEntity userAuthEntity = userDao.getUserAuthToken(accessToken);
         if (userAuthEntity == null) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
-        if(userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
+        UserEntity userEntity = userDao.getUser(userUuid);
+        if(userEntity == null) {
+            throw new UserNotFoundException("USR-001", "User with entered uuid to be deleted does not exist");
+        }
+        if(userAuthEntity.getLogoutAt() != null && userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
             throw new AuthorizationFailedException("ATHR-002", "User is signed out");
         }
-        if(!(userEntity.getRole().equals("ADMIN"))) {
+        if(!(userEntity.getRole().equalsIgnoreCase("ADMIN"))) {
             throw new AuthorizationFailedException("ATHR-003", "Unauthorized Access, Entered user is not an admin");
         }
         userEntity = userDao.deleteUser(userEntity);

@@ -20,10 +20,10 @@ public class CommonService {
     public UserEntity getUserProfile(final String userId, final String accessToken) throws AuthorizationFailedException, UserNotFoundException {
         UserAuthEntity userAuthEntity = userDao.getUserAuthToken(accessToken);
         if (userAuthEntity == null) {
-            throw new AuthorizationFailedException("AUTH-001", "User has not signed in");
+            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
 
-        if(userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
+        if(userAuthEntity.getLogoutAt() != null && userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
             throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get user details");
         }
 

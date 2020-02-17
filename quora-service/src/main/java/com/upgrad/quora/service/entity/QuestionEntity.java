@@ -18,7 +18,9 @@ import java.time.LocalDateTime;
 @Table(name = "question", schema = "quora")
 @NamedQueries(
         {
-                @NamedQuery(name = "questionByUuid", query = "select question from QuestionEntity question where question.uuid = :uuid")
+                @NamedQuery(name = "questionByUuid", query = "select question from QuestionEntity question where question.uuid = :uuid"),
+                @NamedQuery(name = "getAllQuestion", query = "select qe from QuestionEntity qe"),
+                @NamedQuery(name = "getAllQuestionByUser", query = "select qe from QuestionEntity qe where qe.user.uuid = :uuid")
         }
 )
 public class QuestionEntity implements Serializable {

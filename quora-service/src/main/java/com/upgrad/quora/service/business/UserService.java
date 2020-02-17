@@ -94,7 +94,7 @@ public class UserService {
         if (userAuthEntity == null) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
-        UserEntity userEntity = userDao.getUser(userUuid);
+        UserEntity userEntity = userDao.getUserById(userUuid);
         if(userEntity == null) {
             throw new UserNotFoundException("USR-001", "User with entered uuid to be deleted does not exist");
         }

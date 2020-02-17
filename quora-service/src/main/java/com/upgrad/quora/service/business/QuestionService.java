@@ -10,6 +10,8 @@ import com.upgrad.quora.service.exception.InvalidQuestionException;
 import com.upgrad.quora.service.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,6 +23,7 @@ public class QuestionService {
     @Autowired
     private UserDao userDao;
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public QuestionEntity createQuestion(String accessToken, QuestionEntity questionEntity) throws AuthorizationFailedException {
         UserAuthEntity userAuthEntity = userDao.getUserAuthToken(accessToken);
         if(userAuthEntity == null) {
@@ -33,6 +36,7 @@ public class QuestionService {
         return questionDao.createQuestion(questionEntity);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public List<QuestionEntity> getAllQuestions(String accessToken) throws AuthorizationFailedException {
         UserAuthEntity userAuthEntity = userDao.getUserAuthToken(accessToken);
         if(userAuthEntity == null) {
@@ -62,6 +66,7 @@ public class QuestionService {
         return questionDao.updateQuestion(questionEntity);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public QuestionEntity deleteQuestion(String questionId, String accessToken) throws AuthorizationFailedException, InvalidQuestionException {
         UserAuthEntity userAuthEntity = userDao.getUserAuthToken(accessToken);
         if(userAuthEntity == null) {
@@ -80,6 +85,7 @@ public class QuestionService {
         return questionDao.deleteQuestion(questionEntityFromDB);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public List<QuestionEntity> getAllQuestionsByUser(String accessToken, String userId) throws AuthorizationFailedException, UserNotFoundException {
         UserAuthEntity userAuthEntity = userDao.getUserAuthToken(accessToken);
         if(userAuthEntity == null) {

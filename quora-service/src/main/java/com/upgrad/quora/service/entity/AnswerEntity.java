@@ -16,6 +16,12 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "answer", schema = "quora")
+@NamedQueries(
+    {
+        @NamedQuery(name = "answerByUuid", query = "select answer from AnswerEntity answer where answer.uuid = :uuid"),
+        @NamedQuery(name = "getAllAnswersByQuestionId", query = "select ans from AnswerEntity ans where ans.question.uuid = :uuid")
+    }
+)
 public class AnswerEntity implements Serializable {
 
     @Id
@@ -37,18 +43,18 @@ public class AnswerEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private UserEntity userId;
+    private UserEntity user;
 
     @ManyToOne
     @JoinColumn(name = "question_id")
-    private QuestionEntity questionId;
+    private QuestionEntity question;
 
-    public QuestionEntity getQuestionId() {
-        return questionId;
+    public QuestionEntity getQuestion() {
+        return question;
     }
 
-    public void setQuestionId(QuestionEntity questionId) {
-        this.questionId = questionId;
+    public void setQuestion(QuestionEntity question) {
+        this.question = question;
     }
 
     public Integer getId() {
@@ -83,12 +89,12 @@ public class AnswerEntity implements Serializable {
         this.date = date;
     }
 
-    public UserEntity getUserId() {
-        return userId;
+    public UserEntity getUser() {
+        return user;
     }
 
-    public void setUserId(UserEntity userId) {
-        this.userId = userId;
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 
     @Override

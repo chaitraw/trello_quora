@@ -1,9 +1,6 @@
 package com.upgrad.quora.api.controller;
 
-import com.upgrad.quora.api.model.AnswerEditRequest;
-import com.upgrad.quora.api.model.AnswerEditResponse;
-import com.upgrad.quora.api.model.AnswerRequest;
-import com.upgrad.quora.api.model.AnswerResponse;
+import com.upgrad.quora.api.model.*;
 import com.upgrad.quora.service.business.AnswerService;
 import com.upgrad.quora.service.entity.AnswerEntity;
 import com.upgrad.quora.service.exception.AnswerNotFoundException;
@@ -18,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class AnswerController {
@@ -26,7 +25,7 @@ public class AnswerController {
     private AnswerService answerService;
 
     @RequestMapping(method = RequestMethod.POST, path = "/question/{questionId}/answer/create", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<AnswerResponse> getUserProfile(@PathVariable("questionId") String questionId, @RequestHeader("authorization") final String authorization, final AnswerRequest answerRequest) throws AuthorizationFailedException, InvalidQuestionException {
+    public ResponseEntity<AnswerResponse> createAnswer(@PathVariable("questionId") String questionId, @RequestHeader("authorization") final String authorization, final AnswerRequest answerRequest) throws AuthorizationFailedException, InvalidQuestionException {
         String accessToken = authorization.split("Bearer ")[1];
 
         AnswerEntity answerEntity = new AnswerEntity();
@@ -42,7 +41,7 @@ public class AnswerController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, path = "/answer/edit/{answerId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<AnswerEditResponse> getUserProfile(@PathVariable("answerId") String answerId, @RequestHeader("authorization") final String authorization, final AnswerEditRequest answerEditRequest)
+    public ResponseEntity<AnswerEditResponse> editAnswer(@PathVariable("answerId") String answerId, @RequestHeader("authorization") final String authorization, final AnswerEditRequest answerEditRequest)
         throws AuthorizationFailedException, AnswerNotFoundException {
         String accessToken = authorization.split("Bearer ")[1];
 
@@ -55,5 +54,37 @@ public class AnswerController {
         answerResponse.setStatus("ANSWER EDITED");
 
         return new ResponseEntity<AnswerEditResponse>(answerResponse, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, path = "/answer/delete/{answerId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<AnswerDeleteResponse> deleteAnswer(@PathVariable("answerId") final String answerId,
+        @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, AnswerNotFoundException {
+        String accessToken = authorization.split("Bearer ")[1];
+        final AnswerEntity answerEntity = answerService.deleteAnswer(answerId, accessToken);
+
+        AnswerDeleteResponse answerDeleteResponse = new AnswerDeleteResponse().id(answerEntity.getUuid()).status("ANSWER DELETED");
+        return new ResponseEntity<AnswerDeleteResponse>(answerDeleteResponse, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "answer/all/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<AnswerDetailsResponse>> getAllAnswersByQuestionId(@PathVariable("questionId")String questionId, @RequestHeader("authorization") final String authorization)
+        throws AuthorizationFailedException, InvalidQuestionException {
+        String accessToken = authorization.split("Bearer ")[1];
+
+        final List<AnswerEntity> answerEntities = answerService.getAllAnswersByQuestionId(accessToken, questionId);
+
+        List<AnswerDetailsResponse> answerDetailsResponseList = null;
+
+        if(!answerEntities.isEmpty()) {
+            answerDetailsResponseList = new ArrayList<>();
+            for (AnswerEntity answerEntity : answerEntities) {
+                AnswerDetailsResponse answerDetailsResponse = new AnswerDetailsResponse();
+                answerDetailsResponse.setId(answerEntity.getUuid());
+                answerDetailsResponse.setAnswerContent(answerEntity.getAns());
+                answerDetailsResponse.setQuestionContent(answerEntity.getQuestion().getContent());
+                answerDetailsResponseList.add(answerDetailsResponse);
+            }
+        }
+        return new ResponseEntity<List<AnswerDetailsResponse>>(answerDetailsResponseList, HttpStatus.OK);
     }
 }

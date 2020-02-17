@@ -10,15 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@RestController
 public class AnswerController {
 
     @Autowired
@@ -26,7 +24,7 @@ public class AnswerController {
 
     @RequestMapping(method = RequestMethod.POST, path = "/question/{questionId}/answer/create", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<AnswerResponse> createAnswer(@PathVariable("questionId") String questionId, @RequestHeader("authorization") final String authorization, final AnswerRequest answerRequest) throws AuthorizationFailedException, InvalidQuestionException {
-        String accessToken = authorization.split("Bearer ")[1];
+        String accessToken = authorization.split("Bearer ")[0];
 
         AnswerEntity answerEntity = new AnswerEntity();
         answerEntity.setAns(answerRequest.getAnswer());
@@ -43,7 +41,7 @@ public class AnswerController {
     @RequestMapping(method = RequestMethod.PUT, path = "/answer/edit/{answerId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<AnswerEditResponse> editAnswer(@PathVariable("answerId") String answerId, @RequestHeader("authorization") final String authorization, final AnswerEditRequest answerEditRequest)
         throws AuthorizationFailedException, AnswerNotFoundException {
-        String accessToken = authorization.split("Bearer ")[1];
+        String accessToken = authorization.split("Bearer ")[0];
 
         AnswerEntity answerEntity = new AnswerEntity();
         answerEntity.setAns(answerEditRequest.getContent());
@@ -59,7 +57,7 @@ public class AnswerController {
     @RequestMapping(method = RequestMethod.DELETE, path = "/answer/delete/{answerId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<AnswerDeleteResponse> deleteAnswer(@PathVariable("answerId") final String answerId,
         @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, AnswerNotFoundException {
-        String accessToken = authorization.split("Bearer ")[1];
+        String accessToken = authorization.split("Bearer ")[0];
         final AnswerEntity answerEntity = answerService.deleteAnswer(answerId, accessToken);
 
         AnswerDeleteResponse answerDeleteResponse = new AnswerDeleteResponse().id(answerEntity.getUuid()).status("ANSWER DELETED");
@@ -69,7 +67,7 @@ public class AnswerController {
     @RequestMapping(method = RequestMethod.GET, path = "answer/all/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<AnswerDetailsResponse>> getAllAnswersByQuestionId(@PathVariable("questionId")String questionId, @RequestHeader("authorization") final String authorization)
         throws AuthorizationFailedException, InvalidQuestionException {
-        String accessToken = authorization.split("Bearer ")[1];
+        String accessToken = authorization.split("Bearer ")[0];
 
         final List<AnswerEntity> answerEntities = answerService.getAllAnswersByQuestionId(accessToken, questionId);
 

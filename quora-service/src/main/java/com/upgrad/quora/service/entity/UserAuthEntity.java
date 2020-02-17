@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * @author chandan
  */
 @Entity
-@Table(name = "user_auth", schema = "quora")
+@Table(name = "user_auth")
 @NamedQueries({
         @NamedQuery(name = "userAuthByAccessToken", query = "select ut from UserAuthEntity ut where ut.accessToken = :accessToken ")
 })
@@ -29,26 +29,26 @@ public class UserAuthEntity implements Serializable {
 
     @Column(name = "uuid")
     @Size(max = 200)
-    private Integer uuid;
+    private String uuid;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private UserEntity userId;
+    private UserEntity user;
 
     @Column(name = "access_token")
     @NotNull
     @Size(max = 500)
     private String accessToken;
 
-    @Temporal(TemporalType.TIMESTAMP)
+    // @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "login_at", length = 6)
     private LocalDateTime loginAt;
 
-    @Temporal(TemporalType.TIMESTAMP)
+    // @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "expires_at", length = 6)
     private LocalDateTime expiresAt;
 
-    @Temporal(TemporalType.TIMESTAMP)
+    // @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "logout_at", length = 6)
     private LocalDateTime logoutAt;
 
@@ -60,20 +60,20 @@ public class UserAuthEntity implements Serializable {
         this.id = id;
     }
 
-    public Integer getUuid() {
+    public String getUuid() {
         return uuid;
     }
 
-    public void setUuid(Integer uuid) {
+    public void setUuid(String uuid) {
         this.uuid = uuid;
     }
 
     public UserEntity getUser() {
-        return userId;
+        return user;
     }
 
     public void setUser(UserEntity user) {
-        this.userId = user;
+        this.user = user;
     }
 
     public String getAccessToken() {

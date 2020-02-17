@@ -26,7 +26,7 @@ public class QuestionController {
 
     @RequestMapping(method = RequestMethod.POST, path = "question/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionResponse> createQuestion(@RequestHeader("authorization") final String authorization, final QuestionRequest questionRequest) throws AuthorizationFailedException {
-        String accessToken = authorization.split("Bearer ")[1];
+        String accessToken = authorization.split("Bearer ")[0];
 
         QuestionEntity questionEntity = new QuestionEntity();
         questionEntity.setUuid(UUID.randomUUID().toString());
@@ -41,7 +41,7 @@ public class QuestionController {
 
     @RequestMapping(method = RequestMethod.GET, path = "question/all", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestion(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
-        String accessToken = authorization.split("Bearer ")[1];
+        String accessToken = authorization.split("Bearer ")[0];
 
         final List<QuestionEntity> questionEntities = questionService.getAllQuestions(accessToken);
 
@@ -61,7 +61,7 @@ public class QuestionController {
 
     @RequestMapping(method = RequestMethod.PUT, path = "/question/edit/{questionId}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionEditResponse> editQuestion(@PathVariable("questionId") final String questionId, @RequestHeader("authorization") final String authorization, final QuestionEditRequest questionEditRequest) throws AuthorizationFailedException, InvalidQuestionException {
-        String accessToken = authorization.split("Bearer ")[1];
+        String accessToken = authorization.split("Bearer ")[0];
 
         QuestionEntity questionEntity = new QuestionEntity();
         questionEntity.setContent(questionEditRequest.getContent());
@@ -76,14 +76,14 @@ public class QuestionController {
     public ResponseEntity<QuestionDeleteResponse> deleteQuestion(@PathVariable("questionId") final String questionId,
                                                          @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, InvalidQuestionException {
         String [] bearerToken = authorization.split("Bearer ");
-        final QuestionEntity questionEntity = questionService.deleteQuestion(questionId, bearerToken[1]);
+        final QuestionEntity questionEntity = questionService.deleteQuestion(questionId, bearerToken[0]);
         QuestionDeleteResponse questionDeleteResponse = new QuestionDeleteResponse().id(questionEntity.getUuid()).status("QUESTION DELETED");
         return new ResponseEntity<QuestionDeleteResponse>(questionDeleteResponse, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "question/all/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestionByUser(@PathVariable("userId")String userId, @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, UserNotFoundException {
-        String accessToken = authorization.split("Bearer ")[1];
+        String accessToken = authorization.split("Bearer ")[0];
 
         final List<QuestionEntity> questionEntities = questionService.getAllQuestionsByUser(accessToken, userId);
 

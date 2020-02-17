@@ -82,4 +82,5 @@ public class UserService {
         userDao.updateAuthToken(userAuthEntity);
         return userAuthEntity;
     }
+
 }

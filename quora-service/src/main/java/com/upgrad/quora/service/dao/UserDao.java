@@ -63,4 +63,9 @@ public class UserDao {
         entityManager.merge(updateUserAuthEntity);
 
     }
+
+    public UserEntity deleteUser(UserEntity userEntity) {
+        entityManager.remove(userEntity);
+        return userEntity;
+    }
 }

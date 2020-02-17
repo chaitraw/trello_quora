@@ -32,7 +32,7 @@ public class QuestionService {
         if(userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
             throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to post a question");
         }
-        questionEntity.setUser(userDao.getUser(String.valueOf(userAuthEntity.getUuid())));
+        questionEntity.setUser(userDao.getUserById(String.valueOf(userAuthEntity.getUuid())));
         return questionDao.createQuestion(questionEntity);
     }
 
@@ -94,7 +94,7 @@ public class QuestionService {
         if(userAuthEntity.getLogoutAt() != null && userAuthEntity.getLoginAt().isBefore(userAuthEntity.getLogoutAt())) {
             throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get all questions posted by a specific user");
         }
-        UserEntity userEntity = userDao.getUser(userId);
+        UserEntity userEntity = userDao.getUserById(userId);
         if(userEntity == null) {
             throw new UserNotFoundException("USR-001", "User with entered uuid whose question details are to be seen does not exist");
         }

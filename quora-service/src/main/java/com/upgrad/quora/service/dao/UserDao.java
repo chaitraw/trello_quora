@@ -8,10 +8,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
-/**
- *
- * @author chandan
- */
 @Repository
 public class UserDao {
 
@@ -23,7 +19,7 @@ public class UserDao {
         return userEntity;
     }
 
-    public UserEntity getUser(final String userUuid) {
+    public UserEntity getUserById(final String userUuid) {
         try {
             return entityManager.createNamedQuery("userByUuid", UserEntity.class).setParameter("uuid", userUuid)
                     .getSingleResult();

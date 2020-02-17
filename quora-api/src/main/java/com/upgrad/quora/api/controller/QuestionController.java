@@ -24,6 +24,14 @@ public class QuestionController {
     @Autowired
     private QuestionService questionService;
 
+    /**
+     * This endpoint is used to create a question in the Quora Application which will be shown to all the users. Any user can access this endpoint.
+     *
+     * @param authorization
+     * @param questionRequest
+     * @return
+     * @throws AuthorizationFailedException
+     */
     @RequestMapping(method = RequestMethod.POST, path = "question/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionResponse> createQuestion(@RequestHeader("authorization") final String authorization, final QuestionRequest questionRequest) throws AuthorizationFailedException {
         String accessToken = authorization.split("Bearer ")[0];
@@ -39,6 +47,13 @@ public class QuestionController {
         return new ResponseEntity<QuestionResponse>(questionResponse, HttpStatus.CREATED);
     }
 
+    /**
+     * This endpoint is used to fetch all the questions that have been posted in the application by any user. Any user can access this endpoint.
+     *
+     * @param authorization
+     * @return
+     * @throws AuthorizationFailedException
+     */
     @RequestMapping(method = RequestMethod.GET, path = "question/all", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestion(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
         String accessToken = authorization.split("Bearer ")[0];
@@ -59,6 +74,16 @@ public class QuestionController {
         return new ResponseEntity<List<QuestionDetailsResponse>>(questionDetailsResponses, HttpStatus.OK);
     }
 
+    /**
+     * This endpoint is used to edit a question that has been posted by a user. Note, only the owner of the question can edit the question.
+     *
+     * @param questionId
+     * @param authorization
+     * @param questionEditRequest
+     * @return
+     * @throws AuthorizationFailedException
+     * @throws InvalidQuestionException
+     */
     @RequestMapping(method = RequestMethod.PUT, path = "/question/edit/{questionId}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionEditResponse> editQuestion(@PathVariable("questionId") final String questionId, @RequestHeader("authorization") final String authorization, final QuestionEditRequest questionEditRequest) throws AuthorizationFailedException, InvalidQuestionException {
         String accessToken = authorization.split("Bearer ")[0];
@@ -72,6 +97,15 @@ public class QuestionController {
         return new ResponseEntity<QuestionEditResponse>(questionEditResponse, HttpStatus.OK);
     }
 
+    /**
+     * This endpoint is used to delete a question that has been posted by a user. Note, only the question owner of the question or admin can delete a question.
+     *
+     * @param questionId
+     * @param authorization
+     * @return
+     * @throws AuthorizationFailedException
+     * @throws InvalidQuestionException
+     */
     @RequestMapping(method = RequestMethod.DELETE, path = "/question/delete/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionDeleteResponse> deleteQuestion(@PathVariable("questionId") final String questionId,
                                                          @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, InvalidQuestionException {
@@ -81,6 +115,15 @@ public class QuestionController {
         return new ResponseEntity<QuestionDeleteResponse>(questionDeleteResponse, HttpStatus.OK);
     }
 
+    /**
+     * This endpoint is used to fetch all the questions posed by a specific user. Any user can access this endpoint.
+     *
+     * @param userId
+     * @param authorization
+     * @return
+     * @throws AuthorizationFailedException
+     * @throws UserNotFoundException
+     */
     @RequestMapping(method = RequestMethod.GET, path = "question/all/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestionByUser(@PathVariable("userId")String userId, @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, UserNotFoundException {
         String accessToken = authorization.split("Bearer ")[0];

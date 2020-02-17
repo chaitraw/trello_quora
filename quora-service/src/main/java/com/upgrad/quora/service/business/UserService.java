@@ -71,10 +71,13 @@ public class UserService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public UserAuthEntity signOut(final String accessToken) throws SignOutRestrictedException {
+
         UserAuthEntity userAuthEntity = userDao.getUserAuthToken(accessToken);
+      
         if (userAuthEntity == null) {
             throw new SignOutRestrictedException("SGR-001", "User is not Signed in");
         }
+      
         final LocalDateTime now = LocalDateTime.now();
         userAuthEntity.setLogoutAt(now);
         userDao.updateAuthToken(userAuthEntity);
